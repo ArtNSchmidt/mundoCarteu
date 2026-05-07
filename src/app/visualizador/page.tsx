@@ -4,58 +4,52 @@ import { useState } from "react";
 import FunctionForm from "@/components/FunctionForm";
 import GraphCanvas from "@/components/GraphCanvas";
 import MathLegend from "@/components/MathLegend";
-import { useGraphLogic } from "@/hooks/useGraphLogic";
+import { useGraphLogic, type FunctionType } from "@/hooks/useGraphLogic";
+import { getConfig } from "@/utils/funcTypes";
 
 export default function VisualizadorPage() {
-  const [a, setA] = useState(1.5);
-  const [b, setB] = useState(-2);
-  const [c, setC] = useState(1);
+  const [funcType, setFuncType] = useState<FunctionType>("quadratic");
+  const [params, setParams] = useState({ a: 1.5, b: -2, c: 1, d: 0 });
 
-  const { points, roots, vertex, yIntercept, degree } = useGraphLogic(a, b, c);
+  const graphData = useGraphLogic(funcType, params.a, params.b, params.c, params.d);
 
-  function handleChange(field: "a" | "b" | "c", value: number) {
-    if (field === "a") setA(value);
-    else if (field === "b") setB(value);
-    else setC(value);
+  function handleTypeChange(newType: FunctionType) {
+    setFuncType(newType);
+    setParams(getConfig(newType).defaults);
   }
 
-  function handleReset() {
-    setA(1.5);
-    setB(-2);
-    setC(1);
+  function handleParamChange(key: "a" | "b" | "c" | "d", value: number) {
+    setParams((prev) => ({ ...prev, [key]: value }));
   }
 
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-1 flex flex-col xl:flex-row gap-5 p-4 pt-6 pb-6 px-4 xl:px-8 max-w-[1600px] w-full mx-auto">
-        {/* Graph — top on mobile, right on desktop */}
+        {/* Graph */}
         <div className="w-full xl:w-7/12 xl:order-2">
           <GraphCanvas
-            points={points}
-            vertex={vertex}
-            roots={roots}
-            yIntercept={yIntercept}
+            points={graphData.points}
+            asymptotes={graphData.asymptotes}
+            vertex={graphData.vertex}
+            inflection={graphData.inflection}
+            roots={graphData.roots}
+            yIntercept={graphData.yIntercept}
+            funcType={funcType}
           />
         </div>
 
-        {/* Controls + Info — below graph on mobile, left on desktop */}
+        {/* Controls + Legend */}
         <div className="flex flex-col gap-5 w-full xl:w-5/12 xl:order-1">
           <FunctionForm
-            a={a}
-            b={b}
-            c={c}
-            degree={degree}
-            onChange={handleChange}
-            onReset={handleReset}
+            funcType={funcType}
+            params={params}
+            onTypeChange={handleTypeChange}
+            onParamChange={handleParamChange}
           />
           <MathLegend
-            a={a}
-            b={b}
-            c={c}
-            degree={degree}
-            roots={roots}
-            vertex={vertex}
-            yIntercept={yIntercept}
+            funcType={funcType}
+            params={params}
+            graphData={graphData}
           />
         </div>
       </main>
