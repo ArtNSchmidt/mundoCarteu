@@ -461,7 +461,7 @@ export default function QuizPage() {
           </div>
           <h1 className="text-4xl md:text-5xl font-black tracking-tight leading-none"
             style={{ background: "linear-gradient(130deg,#fff 20%,#818cf8 60%,#22d3ee 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-            FuncõesQuest
+            FunçõesQuest
           </h1>
         </header>
 
