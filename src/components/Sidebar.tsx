@@ -12,7 +12,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 h-full z-50 flex flex-col w-16 xl:w-56 bg-[#0d1515] border-r border-[#3a494b]/50">
+    <aside className="hidden md:flex fixed left-0 top-0 h-full z-50 flex-col w-16 xl:w-56 bg-[#0d1515] border-r border-[#3a494b]/50">
       {/* Logo */}
       <div className="h-14 flex items-center gap-3 px-4 border-b border-[#3a494b]/50 shrink-0">
         <span

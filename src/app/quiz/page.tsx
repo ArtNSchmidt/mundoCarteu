@@ -668,7 +668,7 @@ export default function QuizPage() {
             <div className={`${monoSm} text-[#818cf8] mb-2`}>// Modo Desafio — Identifique a função pelo gráfico</div>
             <p className="text-sm font-semibold mb-4">Qual função corresponde ao gráfico abaixo?</p>
             <div className="text-center">
-              <canvas ref={gcCanvasRef} width={500} height={280} className="border border-[#1e2040] rounded-xl max-w-full mx-auto cursor-crosshair block" style={{ background: "#07080f" }} />
+              <canvas ref={gcCanvasRef} width={500} height={280} className="border border-[#1e2040] rounded-xl max-w-full mx-auto cursor-crosshair block" style={{ background: "#07080f", aspectRatio: "500/280" }} />
               {gcCurIdx !== null && (
                 <div className="grid grid-cols-2 gap-2.5 mt-4">
                   {gcOpts.map((f) => {
@@ -767,7 +767,7 @@ export default function QuizPage() {
               <input type="range" min={-4} max={4} step={0.25} value={paramA} onChange={(e) => setParamA(parseFloat(e.target.value))} className="flex-1 min-w-24 accent-[#5b5ef4]" />
               <span className="text-[#fbbf24] text-sm min-w-8 text-right" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{paramA}</span>
             </div>
-            <canvas ref={explorerRef} width={560} height={320} className="border border-[#1e2040] rounded-xl max-w-full block mx-auto cursor-crosshair" style={{ background: "#07080f" }} />
+            <canvas ref={explorerRef} width={560} height={320} className="border border-[#1e2040] rounded-xl max-w-full block mx-auto cursor-crosshair" style={{ background: "#07080f", aspectRatio: "560/320" }} />
             {explorerInfo && (
               <div className="mt-3 p-3 rounded-lg text-xs leading-6 text-[#fde68a]"
                 style={{ background: "rgba(251,191,36,.07)", border: "1px solid rgba(251,191,36,.2)", fontFamily: "'JetBrains Mono', monospace" }}>
