@@ -1,11 +1,13 @@
 import Sidebar from "./Sidebar";
+import BottomNav from "./BottomNav";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      {/* offset para não sobrepor a sidebar: 64px (w-16) no mobile, 224px (w-56) no xl */}
-      <div className="flex-1 pl-16 xl:pl-56">{children}</div>
+      {/* sem offset no mobile (sidebar oculta), 64px no md+, 224px no xl */}
+      <div className="flex-1 pl-0 md:pl-16 xl:pl-56 pb-16 md:pb-0">{children}</div>
+      <BottomNav />
     </div>
   );
 }

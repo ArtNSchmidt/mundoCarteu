@@ -41,10 +41,33 @@ export default function GraphCanvas({
   const [tooltipPoint, setTooltipPoint] = useState<{
     px: number; py: number; label: string; sub: string; color: string;
   } | null>(null);
+  // increments when canvas is resized so the draw effect re-runs
+  const [drawTick, setDrawTick] = useState(0);
 
+  // Keep canvas dimensions in sync with its container
+  useEffect(() => {
+    const container = containerRef.current;
+    const canvas    = canvasRef.current;
+    if (!container || !canvas) return;
+
+    const ro = new ResizeObserver(() => {
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      if (w > 0 && h > 0) {
+        canvas.width  = w;
+        canvas.height = h;
+        setDrawTick((t) => t + 1);
+      }
+    });
+
+    ro.observe(container);
+    return () => ro.disconnect();
+  }, []);
+
+  // Draw whenever data or canvas size changes
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || points.length === 0) return;
+    if (!canvas || points.length === 0 || canvas.width === 0 || canvas.height === 0) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -173,6 +196,7 @@ export default function GraphCanvas({
     if (yMin <= 0 && yMax >= 0) {
       ctx.fillText("X", W - PAD + 10, tc(0, 0)[1]);
     }
+
     if (xMin <= 0 && xMax >= 0 && yMin <= 0 && yMax >= 0) {
       const [cx0, cy0] = tc(0, 0);
       ctx.fillStyle = LABEL;
@@ -288,19 +312,17 @@ export default function GraphCanvas({
     }
 
     setTooltipPoint(newTooltip);
-  }, [points, asymptotes, vertex, inflection, roots, yIntercept, funcType]);
+  }, [points, asymptotes, vertex, inflection, roots, yIntercept, funcType, drawTick]);
 
   return (
     <div
       ref={containerRef}
-      className="w-full glass-panel rounded-xl overflow-hidden flex flex-col"
-      style={{ minHeight: 420 }}
+      className="w-full flex-1 glass-panel rounded-xl overflow-hidden flex flex-col"
+      style={{ minHeight: 320 }}
     >
       <div className="relative flex-1" style={{ minHeight: 360 }}>
         <canvas
           ref={canvasRef}
-          width={800}
-          height={560}
           className="w-full h-full"
           style={{ display: "block" }}
         />
