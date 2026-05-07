@@ -27,9 +27,9 @@ export default function VisualizadorPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <main className="flex-1 flex flex-col xl:flex-row gap-5 p-4 pt-6 pb-6 px-4 xl:px-8 max-w-[1600px] w-full mx-auto">
+      <main className="flex-1 flex flex-col xl:flex-row gap-5 p-4 pt-6 pb-8 xl:pb-6 px-4 xl:px-8 max-w-[1600px] w-full mx-auto">
         {/* Graph — top on mobile, right on desktop */}
-        <div className="w-full xl:w-7/12 xl:order-2">
+        <div className="w-full xl:w-7/12 xl:order-2 flex flex-col">
           <GraphCanvas
             points={points}
             vertex={vertex}

@@ -21,28 +21,49 @@ const R_COLOR = "#ffb4ab";
 const Y_COLOR = "rgba(255,255,255,0.85)";
 
 export default function GraphCanvas({ points, vertex, roots, yIntercept }: GraphCanvasProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef    = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [vtxPos, setVtxPos] = useState<{ px: number; py: number } | null>(null);
+  // increments when canvas is resized so the draw effect re-runs
+  const [drawTick, setDrawTick] = useState(0);
 
+  // Keep canvas dimensions in sync with its container
+  useEffect(() => {
+    const container = containerRef.current;
+    const canvas    = canvasRef.current;
+    if (!container || !canvas) return;
+
+    const ro = new ResizeObserver(() => {
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      if (w > 0 && h > 0) {
+        canvas.width  = w;
+        canvas.height = h;
+        setDrawTick((t) => t + 1);
+      }
+    });
+
+    ro.observe(container);
+    return () => ro.disconnect();
+  }, []);
+
+  // Draw whenever data or canvas size changes
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || points.length === 0) return;
+    if (!canvas || points.length === 0 || canvas.width === 0 || canvas.height === 0) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const W = canvas.width;
-    const H = canvas.height;
+    const W  = canvas.width;
+    const H  = canvas.height;
     const iW = W - PAD * 2;
     const iH = H - PAD * 2;
 
-    // Zoom manual: foca de -10 a 10 no X, Y ajustado para a parábola
     const xs = points.map((p) => p.x);
     const ys = points.map((p) => p.y);
     let xMin = -10, xMax = 10;
     let yMin = Math.min(...ys);
     let yMax = Math.max(...ys);
-    // Garante que a parábola fique centralizada e visível
     const yPad = (yMax - yMin) * 0.15;
     yMin -= yPad;
     yMax += yPad;
@@ -57,7 +78,7 @@ export default function GraphCanvas({ points, vertex, roots, yIntercept }: Graph
     ctx.fillStyle = BG;
     ctx.fillRect(0, 0, W, H);
 
-    // Grid lines (menos linhas)
+    // Grid
     ctx.strokeStyle = GRID;
     ctx.lineWidth = 1;
     for (let i = Math.ceil(xMin); i <= Math.floor(xMax); i += 2) {
@@ -81,7 +102,7 @@ export default function GraphCanvas({ points, vertex, roots, yIntercept }: Graph
       ctx.beginPath(); ctx.moveTo(cx0, PAD); ctx.lineTo(cx0, H - PAD); ctx.stroke();
     }
 
-    // Axis labels (menos números)
+    // Axis labels
     ctx.fillStyle = LABEL;
     ctx.font = "13px Inter, sans-serif";
     ctx.textAlign = "center";
@@ -111,7 +132,6 @@ export default function GraphCanvas({ points, vertex, roots, yIntercept }: Graph
       ctx.fillText("X", W - PAD + 10, tc(0, 0)[1]);
     }
 
-    // "0" at origin
     if (xMin <= 0 && xMax >= 0 && yMin <= 0 && yMax >= 0) {
       const [cx0, cy0] = tc(0, 0);
       ctx.fillStyle = LABEL;
@@ -120,7 +140,7 @@ export default function GraphCanvas({ points, vertex, roots, yIntercept }: Graph
       ctx.fillText("0", cx0 + 4, cy0 + 13);
     }
 
-    // Curve with glow
+    // Curve
     ctx.save();
     ctx.shadowColor = CURVE;
     ctx.shadowBlur = 12;
@@ -178,19 +198,17 @@ export default function GraphCanvas({ points, vertex, roots, yIntercept }: Graph
       ctx.arc(cx, cy, 6, 0, Math.PI * 2);
       ctx.fillStyle = V_COLOR;
       ctx.fill();
-      // white inner ring
       ctx.shadowBlur = 0;
       ctx.beginPath();
       ctx.arc(cx, cy, 3, 0, Math.PI * 2);
       ctx.fillStyle = "#0d1515";
       ctx.fill();
       ctx.restore();
-      // Store position as fraction for HTML tooltip
       setVtxPos({ px: cx / W, py: cy / H });
     } else {
       setVtxPos(null);
     }
-  }, [points, vertex, roots, yIntercept]);
+  }, [points, vertex, roots, yIntercept, drawTick]);
 
   function fmt2(n: number) {
     return parseFloat(n.toFixed(2)).toString();
@@ -199,27 +217,21 @@ export default function GraphCanvas({ points, vertex, roots, yIntercept }: Graph
   return (
     <div
       ref={containerRef}
-      className="w-full glass-panel rounded-xl overflow-hidden flex flex-col"
-      style={{ minHeight: 420 }}
+      className="w-full flex-1 glass-panel rounded-xl overflow-hidden flex flex-col"
+      style={{ minHeight: 320 }}
     >
-      {/* Toolbar removida conforme solicitado */}
-
-      {/* Canvas area */}
-      <div className="relative flex-1" style={{ minHeight: 360 }}>
+      <div className="relative flex-1" style={{ minHeight: 280 }}>
         <canvas
           ref={canvasRef}
-          width={800}
-          height={560}
           className="w-full h-full"
           style={{ display: "block" }}
         />
-        {/* Vertex tooltip overlay */}
         {vtxPos && vertex && (
           <div
             className="absolute pointer-events-none"
             style={{
               left: `calc(${vtxPos.px * 100}% + 12px)`,
-              top: `calc(${vtxPos.py * 100}% - 16px)`,
+              top:  `calc(${vtxPos.py * 100}% - 16px)`,
             }}
           >
             <div
